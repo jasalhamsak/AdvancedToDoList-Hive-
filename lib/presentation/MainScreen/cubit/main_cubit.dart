@@ -17,27 +17,23 @@ class MainCubit extends Cubit<MainState> {
   int taskType = 0;
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
-  final List<Color> categoryColors = [
-    Colors.red, // Travel
-    Colors.green, // Fitness
-    Colors.blue, // Study
-    Colors.orange, // Shopping
-    Colors.pink, // Health
-    Colors.teal, // Finance
-    Colors.purple, // Work
-    Colors.indigo, // Music
-    Colors.amber, // Food
-    Colors.cyan, // DailyColors.red, // Travel
-    Colors.green, // Fitness
-    Colors.blue, // Study
-    Colors.orange, // Shopping
-    Colors.pink, // Health
-    Colors.teal, // Finance
-    Colors.purple, // Work
-    Colors.indigo, // Music
-    Colors.amber, // Food
-    Colors.cyan, // Daily
-  ];
+  final Map<String, Color> colorMap = {
+    'red': Colors.red,
+    'green': Colors.green,
+    'blue': Colors.blue,
+    'orange': Colors.orange,
+    'pink': Colors.pink,
+    'teal': Colors.teal,
+    'purple': Colors.purple,
+    'indigo': Colors.indigo,
+    'amber': Colors.amber,
+    'cyan': Colors.cyan,
+    'grey': Colors.grey,
+    'black': Colors.black,
+    'white': Colors.white,
+    // add more if needed
+  };
+
 
   final Map<String, IconData> lucideIconMap = {
     'airplane': LucideIcons.airplay,
@@ -68,13 +64,25 @@ class MainCubit extends Cubit<MainState> {
     // Add more if needed
   };
 
+  final List<Category> defaultCategories = [
+    Category(category: 'Travel', color: 'red', iconName: 'luggage'),
+    Category(category: 'Fitness', color: 'green', iconName: 'dumbbell'),
+    Category(category: 'Study', color: 'blue', iconName: 'book'),
+    Category(category: 'Shopping', color: 'orange', iconName: 'shoppingBag'),
+    Category(category: 'Health', color: 'pink', iconName: 'heart'),
+  ];
 
+
+final newCategory = Category(category: 'Investment', color: 'red', iconName: 'luggage');
 
 
 
   late Box<TaskModel> _myBox;
+  late Box<Category> _categoryBox;
   List<dynamic> get keys => _myBox.keys.toList();
   List<dynamic> get values => _myBox.values.toList();
+  List<dynamic> getCategoryKeys() => _categoryBox.keys.toList();
+
   List result = [];
   int counter = 1;
   SharedPreferences? prefs;
@@ -82,14 +90,73 @@ class MainCubit extends Cubit<MainState> {
 
 
 
-//shared preference starts
+//initializing all box,shared preference starts
   Future<void> init() async {
      _myBox = Hive.box('taskbox');
+     _categoryBox =Hive.box<Category>('categoryBox');
     prefs = await SharedPreferences.getInstance();
+     if (_categoryBox.isEmpty) {
+       for (var cat in defaultCategories) {
+         _categoryBox.add(cat);
+       }
+     }
     counter = getPrefs() ?? 1;
     readData();
     print("Counter loaded: $counter");
   }
+
+  //category management
+
+  void addCategory(Category category) {
+    final exists = _categoryBox.values.any(
+          (c) => c.category.toLowerCase().trim() == category.category.toLowerCase().trim(),
+    );
+
+    if (!exists) {
+      _categoryBox.add(category);
+      emit(CategoryListUpdated());
+    } else {
+      // Optional: Emit a separate state or show error message
+      emit(CategoryAlreadyExists());
+    }
+  }
+
+  void removeCategoryByKey(dynamic key) {
+    _categoryBox.delete(key);
+    emit(CategoryListUpdated());
+  }
+
+
+  List<Category> getCategories() {
+    return _categoryBox.values.toList();
+  }
+
+  void resetCategoriesToDefault() {
+    _categoryBox.clear();
+    for (var cat in defaultCategories) {
+      _categoryBox.add(cat);
+    }
+    emit(CategoryListUpdated());
+  }
+
+  Color getColor(String color) =>
+      colorMap[color.toLowerCase()] ?? Colors.grey;
+
+
+  String selectedCategoryColor = 'red'; // default
+
+  void changeSelectedCategoryColor(String color) {
+    selectedCategoryColor = color;
+    emit(CategoryColorChanged()); // emit state to rebuild UI
+  }
+
+
+
+  ///category management ends
+
+
+
+
 
   Future<void> setPrefs(int count) async {
     await prefs?.setInt("Item_Count", count);
@@ -109,33 +176,27 @@ class MainCubit extends Cubit<MainState> {
 
 
 //CURD operations Starts
-  void writeData(String textItem ,{bool isStrikeOff = false}) {
+  void writeData(String textItem ,BuildContext context,{bool isStrikeOff = false}) {
     if(textItem.isEmpty){
       return;
     }
 
     final category = Category(category: 'travel', color: 'red', iconName: 'luggage');
     final task = TaskModel(
-      label: 'Do homework',
+      label: textItem,
       category: category,
-      date: DateTime.now(),
-      time: '15:00',
-      taskType: 1, // Example: 1 = Study
+      date: selectedDate?? DateTime.now(),
+      time: selectedTime != null ? selectedTime!.format(context) : "7:00 am",
+      taskType: taskType, // Example: 1 = Study
     );
 
+    _myBox.put(counter, task);
 
-
-    // Map<String,dynamic> values ={
-    //   "text" : textItem,
-    //   "isStrikeOff" : isStrikeOff
-    // };
-    //
-    // _myBox.put(counter, values);
-    // print(counter);
-    // counter++;
-    // print(counter);
-    // setPrefs(counter);
-    // readData();
+    print(counter);
+    counter++;
+    print(counter);
+    setPrefs(counter);
+    readData();
     emit(ValueAdded());
   }
 
@@ -151,6 +212,13 @@ class MainCubit extends Cubit<MainState> {
 
   void readData() {
     result = _myBox.values.toList();
+    for (var task in result) {
+      print('Label: ${task.label}');
+      print('Date: ${task.date}');
+      print('Time: ${task.time}');
+      print('Type: ${task.taskType}');
+      print('StrikeOff: ${task.isStrikeOff}');
+    }
     emit(ValueRead());
   }
 

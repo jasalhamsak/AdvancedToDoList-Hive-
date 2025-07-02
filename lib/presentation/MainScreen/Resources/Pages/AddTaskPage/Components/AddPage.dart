@@ -5,33 +5,25 @@ import 'package:todolist/Resources/HeadingStyles.dart';
 import 'package:todolist/presentation/MainScreen/cubit/main_cubit.dart';
 
 import '../../../../../../Resources/Icon&Text_Button.dart';
+import '../../../../../../Resources/Models/category_model.dart';
 
 class Addpage extends StatelessWidget {
-  const Addpage({super.key});
+   const Addpage({super.key});
+ static final TextEditingController addController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    final List<String> categories = [
-      "Travel",
-      "Fitness",
-      "Study",
-      "Shopping",
-      "Health",
-      // "Finance",
-      // "Work",
-      // "Music",
-      // "Food",
-      // "Daily"
-    ];
 
 
-    final TextEditingController addController = TextEditingController();
+
 
 
 
     return BlocBuilder<MainCubit, MainState>(
       builder: (context, state) {
         final cubit = context.read<MainCubit>();
+        final categories =cubit.getCategories();
+
         return SingleChildScrollView(
 
           // padding: const EdgeInsets.only(bottom: 20),
@@ -170,13 +162,14 @@ class Addpage extends StatelessWidget {
                   spacing: 10,
                   runSpacing: 15,
                   children: List.generate(categories.length, (index) {
+
                     return Container(
                       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       decoration: BoxDecoration(
-                        color: cubit.categoryColors[index],
+                        color: cubit.getColor(categories[index].color),
                         borderRadius: BorderRadius.circular(15),
                       ),
-                      child: Text(categories[index]),
+                      child: Text(categories[index].category),
                     );
                   }),
                 ),
@@ -195,12 +188,17 @@ class Addpage extends StatelessWidget {
                       foregroundColor: const WidgetStatePropertyAll(Colors.white),
                     ),
                     onPressed: () {
-                      cubit.writeData(addController.text);
+                      cubit.writeData(addController.text,context);
+                      addController.clear();
                       print("called");
                     },
                     child: const Text("Create Task"),
                   ),
-                )
+                ),
+                OutlinedButton(onPressed: (){
+                  final newCategory = Category(category: 'Investment', color: 'red', iconName: 'luggage');
+                  cubit.addCategory(newCategory);
+                }, child: Text("add"))
 
 
               ],

@@ -34,7 +34,7 @@ class Mainscreen extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 25.0,right: 25),
                 child: SafeArea(
                     child: cubit.selectedIndex == 0
-                        ? HomePage(colorList: cubit.categoryColors,)
+                        ? HomePage()
                         : cubit.selectedIndex == 1
                         ? Addpage()
                         : cubit.selectedIndex == 2?Settingspage(action: (){cubit.switchPage(0);}):SizedBox()

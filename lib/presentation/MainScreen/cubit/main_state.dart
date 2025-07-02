@@ -15,3 +15,7 @@ final class ValueDeleted extends MainState {}
 final class AllValueDeleted extends MainState {}
 final class IsStrikes extends MainState {}
 final class ValueUpdated extends MainState {}
+
+final class CategoryListUpdated extends MainState {}
+final class CategoryAlreadyExists extends MainState {}
+final class CategoryColorChanged extends MainState {}

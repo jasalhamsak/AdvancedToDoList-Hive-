@@ -16,6 +16,7 @@ void main()async {
   Hive.registerAdapter(TaskModelAdapter());
 
   var box = await Hive.openBox<TaskModel>('taskbox');
+  var categoryBox = await Hive.openBox<Category>('categoryBox');
 
   runApp(const MyApp());
 }

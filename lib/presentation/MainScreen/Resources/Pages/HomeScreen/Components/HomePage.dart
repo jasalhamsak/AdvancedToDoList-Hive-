@@ -4,10 +4,10 @@ import 'package:flutter_lucide/flutter_lucide.dart';
 
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key, required this.colorList});
+  const HomePage({super.key, });
 
 
-  final List colorList;
+  // final List colorList;
 
 
   @override
@@ -71,7 +71,8 @@ class HomePage extends StatelessWidget {
                           children: [
                             Container(
                               decoration: BoxDecoration(
-                                color: colorList[index],
+                                color: Colors.red,
+                        //colorList[index],
                                 borderRadius: BorderRadius.circular(8)
                               ),
                               margin: EdgeInsets.all(15),
