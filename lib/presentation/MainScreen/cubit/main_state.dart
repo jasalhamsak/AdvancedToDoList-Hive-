@@ -19,3 +19,5 @@ final class ValueUpdated extends MainState {}
 final class CategoryListUpdated extends MainState {}
 final class CategoryAlreadyExists extends MainState {}
 final class CategoryColorChanged extends MainState {}
+final class CategoryIconChanged extends MainState {}
+final class CategoryAdded extends MainState {}

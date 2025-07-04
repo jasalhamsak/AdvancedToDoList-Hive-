@@ -17,6 +17,8 @@ class MainCubit extends Cubit<MainState> {
   int taskType = 0;
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
+  Category selectedCategory =Category(category: 'travel', color: 'red', iconName: 'luggage');
+
   final Map<String, Color> colorMap = {
     'red': Colors.red,
     'green': Colors.green,
@@ -73,7 +75,6 @@ class MainCubit extends Cubit<MainState> {
   ];
 
 
-final newCategory = Category(category: 'Investment', color: 'red', iconName: 'luggage');
 
 
 
@@ -126,6 +127,11 @@ final newCategory = Category(category: 'Investment', color: 'red', iconName: 'lu
     emit(CategoryListUpdated());
   }
 
+  void taskSelectCategory(Category category){
+    selectedCategory =category;
+    emit(CategoryAdded());
+  }
+
 
   List<Category> getCategories() {
     return _categoryBox.values.toList();
@@ -144,14 +150,27 @@ final newCategory = Category(category: 'Investment', color: 'red', iconName: 'lu
 
 
   String selectedCategoryColor = 'red'; // default
+  String selectedCategoryIcon = 'daily'; // default
 
   void changeSelectedCategoryColor(String color) {
     selectedCategoryColor = color;
     emit(CategoryColorChanged()); // emit state to rebuild UI
   }
+  void changeSelectedCategoryIcon(String iconName) {
+    selectedCategoryIcon = iconName;
+    emit(CategoryIconChanged()); // or your custom state
+  }
+
+  //convert stored icon into usable icon
+  IconData getLucideIcon(String name) {
+    return lucideIconMap[name] ?? LucideIcons.newspaper;
+    //   Icon(getLucideIcon('apple')); // shows apple icon
+  }
 
 
-
+  void chooseCategory(){
+    selectedCategory = Category(category: 'travel', color: 'red', iconName: 'luggage');
+  }
   ///category management ends
 
 
@@ -181,10 +200,10 @@ final newCategory = Category(category: 'Investment', color: 'red', iconName: 'lu
       return;
     }
 
-    final category = Category(category: 'travel', color: 'red', iconName: 'luggage');
+    // final category = Category(category: 'travel', color: 'red', iconName: 'luggage');
     final task = TaskModel(
       label: textItem,
-      category: category,
+      category: selectedCategory,
       date: selectedDate?? DateTime.now(),
       time: selectedTime != null ? selectedTime!.format(context) : "7:00 am",
       taskType: taskType, // Example: 1 = Study
@@ -197,14 +216,17 @@ final newCategory = Category(category: 'Investment', color: 'red', iconName: 'lu
     print(counter);
     setPrefs(counter);
     readData();
+    selectedDate = null;
+    selectedTime = null;
+    taskType = 0;
+    selectedCategory = Category(category: 'travel', color: 'red', iconName: 'luggage');
+    selectedCategoryColor = 'red';
+    selectedCategoryIcon = 'luggage';
     emit(ValueAdded());
+    selectedIndex = 0;
+    emit(PageSwitched());
   }
 
-  //convert stored icon into usable icon
-  IconData getLucideIcon(String name) {
-    return lucideIconMap[name] ?? LucideIcons.newspaper;
-  //   Icon(getLucideIcon('apple')); // shows apple icon
-  }
 
 
 
@@ -213,11 +235,15 @@ final newCategory = Category(category: 'Investment', color: 'red', iconName: 'lu
   void readData() {
     result = _myBox.values.toList();
     for (var task in result) {
-      print('Label: ${task.label}');
-      print('Date: ${task.date}');
-      print('Time: ${task.time}');
-      print('Type: ${task.taskType}');
-      print('StrikeOff: ${task.isStrikeOff}');
+      print('🔹 Label      : ${task.label}');
+      print('📅 Date       : ${task.date}');
+      print('⏰ Time       : ${task.time}');
+      print('📌 Type       : ${task.taskType}');
+      print('❌ StrikeOff  : ${task.isStrikeOff}');
+      print('📂 Category   : ${task.category.category}');
+      print('🎨 Color      : ${task.category.color}');
+      print('📎 Icon Name  : ${task.category.iconName}');
+      print('-------------------------------');
     }
     emit(ValueRead());
   }

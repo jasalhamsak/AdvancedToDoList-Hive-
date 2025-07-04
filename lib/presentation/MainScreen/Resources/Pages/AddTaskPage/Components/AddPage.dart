@@ -162,14 +162,22 @@ class Addpage extends StatelessWidget {
                   spacing: 10,
                   runSpacing: 15,
                   children: List.generate(categories.length, (index) {
-
-                    return Container(
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: cubit.getColor(categories[index].color),
-                        borderRadius: BorderRadius.circular(15),
+                    final selectedCatColor = categories[index].color;
+                    final selectedCatLabel = categories[index].category;
+                    final selectedCatIcon =categories[index].iconName;
+                    return InkWell(
+                      onTap: (){
+                        final  category =Category(category: selectedCatLabel, color: selectedCatColor, iconName: selectedCatIcon);
+                        cubit.taskSelectCategory(category);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: cubit.getColor(categories[index].color),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Text(categories[index].category),
                       ),
-                      child: Text(categories[index].category),
                     );
                   }),
                 ),
@@ -195,12 +203,6 @@ class Addpage extends StatelessWidget {
                     child: const Text("Create Task"),
                   ),
                 ),
-                OutlinedButton(onPressed: (){
-                  final newCategory = Category(category: 'Investment', color: 'red', iconName: 'luggage');
-                  cubit.addCategory(newCategory);
-                }, child: Text("add"))
-
-
               ],
             ),
           ),

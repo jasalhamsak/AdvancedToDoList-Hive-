@@ -25,7 +25,7 @@ class Settingspage extends StatelessWidget {
             children: [SizedBox(height: 20,),
               ElevatedButton(
                   onPressed: () {
-                    action!();
+                    action();
                   },
                   child: Icon(Icons.chevron_left)),
               Headingstyles(data: "Settings", typeH123: "H1"),
@@ -61,6 +61,40 @@ class Settingspage extends StatelessWidget {
                 }).toList(),
               ),
               SizedBox(height: 20,),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: cubit.lucideIconMap.keys.map((iconName) {
+                  final isSelected = cubit.selectedCategoryIcon == iconName;
+
+                  return GestureDetector(
+                    onTap: () {
+                      cubit.changeSelectedCategoryIcon(iconName);
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(4), // spacing between border and inner circle
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isSelected ? Color(0xff666668) : Colors.transparent, // ✅ fix
+                          width: 2,
+                        ),
+                      ),
+                      child: CircleAvatar(
+                        radius: 20,
+                        backgroundColor: Color(0xff2c2c2e),
+                        child: Icon(
+                          cubit.lucideIconMap[iconName],
+                          size: 20,
+                          color: Color(0xfff9f8fd),
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+
+
 
               ElevatedButton.icon(
                 onPressed: () {
@@ -69,7 +103,7 @@ class Settingspage extends StatelessWidget {
                     final newCategory = Category(
                       category: text,
                       color: cubit.selectedCategoryColor,
-                      iconName: 'luggage',
+                      iconName: cubit.selectedCategoryIcon,
                     );
                     cubit.addCategory(newCategory);
                     addController.clear(); // optional: clear the input
